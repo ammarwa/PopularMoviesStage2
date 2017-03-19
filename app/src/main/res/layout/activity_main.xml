@@ -1,33 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.binaryeye.popularmoviesstage1.MainActivity">
+    android:layout_gravity="center_horizontal">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center"
+        android:gravity="center"
         android:fontFamily="cursive"
         android:text="Sort By"
-        android:textSize="38sp" />
+        android:textSize="25sp"/>
 
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/first_linear">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="cursive"
             android:text="Rating"
-            android:textSize="38sp" />
+            android:textSize="20sp" />
 
         <Switch
             android:id="@+id/switch_sort_by"
@@ -38,30 +43,25 @@
             android:onClick="switch_sort_by_onclick"
             android:textOff="Rating"
             android:textOn="Popularity"
-            android:textSize="38sp"
-            tools:checked="true" />
+            android:textSize="20sp"
+            android:checked="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="cursive"
             android:text="Popularity"
-            android:textSize="38sp" />
+            android:textSize="20sp" />
 
     </LinearLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/recyclerview_movies"
-        android:layout_gravity="center"></android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="bottom"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:id="@+id/second_linear">
 
         <Button
             android:id="@+id/previous_btn"
@@ -90,6 +90,26 @@
 
     </LinearLayout>
 
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <ProgressBar
+        android:id="@+id/pb_loading_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible" />
+
+    <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/recyclerview_movies"
+            android:layout_gravity="center">
+
+        </android.support.v7.widget.RecyclerView>
+    </FrameLayout>
+
     <TextView
         android:id="@+id/tv_error_message_display"
         android:layout_width="wrap_content"
@@ -99,11 +119,6 @@
         android:textSize="20sp"
         android:visibility="invisible" />
 
-    <ProgressBar
-        android:id="@+id/pb_loading_indicator"
-        android:layout_height="42dp"
-        android:layout_width="42dp"
-        android:layout_gravity="center"
-        android:visibility="invisible" />
 
-</FrameLayout>
+</LinearLayout>
+    </ScrollView>
