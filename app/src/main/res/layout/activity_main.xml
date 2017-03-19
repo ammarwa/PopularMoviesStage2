@@ -5,11 +5,89 @@
     android:layout_height="match_parent"
     tools:context="org.binaryeye.popularmoviesstage1.MainActivity">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="cursive"
+        android:text="Sort By"
+        android:textSize="38sp" />
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="cursive"
+            android:text="Rating"
+            android:textSize="38sp" />
+
+        <Switch
+            android:id="@+id/switch_sort_by"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="cursive"
+            android:textOff="Rating"
+            android:textOn="Popularity"
+            android:textSize="38sp"
+            android:onClick="switch_sort_by_onclick"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="cursive"
+            android:text="Popularity"
+            android:textSize="38sp" />
+
+    </LinearLayout>
+
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/recyclerview_movies"
         android:layout_gravity="center"></android.support.v7.widget.RecyclerView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/previous_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:fontFamily="cursive"
+            android:onClick="previous_page_onClick"
+            android:text="Previous"
+            android:textColor="@color/colorPrimaryDark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/page_number"/>
+
+        <Button
+            android:id="@+id/next_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:fontFamily="cursive"
+            android:onClick="next_page_onClick"
+            android:text="Next"
+            android:textColor="@color/colorPrimaryDark" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_error_message_display"

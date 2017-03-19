@@ -9,7 +9,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import org.binaryeye.popularmoviesstage1.Models.Result;
@@ -22,13 +24,18 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MoviesAdapterOnClickHandler {
 
-    int popularOrRated = 0;
+    int popularOrRated = 1;
     int pageNumber = 1;
 
     ProgressBar mLoadingIndicator;
     private RecyclerView mRecyclerView;
     private MoviesAdapter moviesAdapter;
     private TextView mErrorMessageDisplay;
+    TextView pageNumberTextView;
+    Button nextPage;
+    Button previousPage;
+    int totalNumberOfPages;
+    Switch switchSortBy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +44,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movies);
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        GridLayoutManager layoutManager = new GridLayoutManager(this,4);
+        GridLayoutManager layoutManager = new GridLayoutManager(this,5);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.hasFixedSize();
         moviesAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(moviesAdapter);
+        pageNumberTextView = (TextView) findViewById(R.id.page_number);
+        pageNumberTextView.setText("1");
+        nextPage = (Button) findViewById(R.id.next_btn);
+        previousPage = (Button) findViewById(R.id.previous_btn);
+        switchSortBy = (Switch) findViewById(R.id.switch_sort_by);
+        previousPage.setEnabled(false);
         loadMoviesData();
     }
 
@@ -71,6 +84,39 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         Intent intentToStartDetailActivity = new Intent(context, destinationClass);
         intentToStartDetailActivity.putExtra("Details",  currentMovie);
         startActivity(intentToStartDetailActivity);
+    }
+
+    public void previous_page_onClick(View v) {
+        pageNumber--;
+        if(pageNumber==1){
+            previousPage.setEnabled(false);
+        }
+        nextPage.setEnabled(true);
+        pageNumberTextView.setText(Integer.toString(pageNumber));
+        loadMoviesData();
+    }
+
+    public void next_page_onClick(View v) {
+        pageNumber++;
+        if(pageNumber == totalNumberOfPages){
+            nextPage.setEnabled(false);
+        }
+        previousPage.setEnabled(true);
+        pageNumberTextView.setText(Integer.toString(pageNumber));
+        loadMoviesData();
+    }
+
+    public void switch_sort_by_onclick(View v){
+        if(switchSortBy.isChecked()){
+            popularOrRated = 0;
+        } else {
+            popularOrRated = 1;
+        }
+        pageNumber = 1;
+        previousPage.setEnabled(false);
+        pageNumberTextView.setText("1");
+        nextPage.setEnabled(true);
+        loadMoviesData();
     }
 
     public class FetchMoviesTask extends AsyncTask<Void, Void, TMDBJsonResponse>{
@@ -116,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 response.setResults(results);
                 response.setTotal_results(movieJson.get("total_results").toString());
                 response.setTotal_pages(movieJson.get("total_pages").toString());
+                totalNumberOfPages = Integer.parseInt(response.getTotal_pages());
 
                 return response;
 
