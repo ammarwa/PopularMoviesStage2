@@ -98,7 +98,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         Result currentMovie = moviesData.getResults()[position];
         LoadImage loadImage = new LoadImage();
         try {
-            holder.movieImageButton.setImageBitmap(loadImage.execute("https://lumiere-a.akamaihd.net/v1/images/eu_batb_flex-hero_header_r_430eac8d.jpeg").get());
+            holder.movieImageButton.setImageBitmap(loadImage.execute("http://image.tmdb.org/t/p/w185" + currentMovie.getPoster_path()).get());
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

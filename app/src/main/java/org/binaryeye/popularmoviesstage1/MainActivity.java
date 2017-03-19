@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movies);
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        GridLayoutManager layoutManager = new GridLayoutManager(this,20);
+        GridLayoutManager layoutManager = new GridLayoutManager(this,4);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.hasFixedSize();
         moviesAdapter = new MoviesAdapter(this);
