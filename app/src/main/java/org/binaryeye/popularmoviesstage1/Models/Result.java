@@ -1,40 +1,30 @@
 package org.binaryeye.popularmoviesstage1.Models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by ammar on 0019 19 Mar 17.
  */
 
-class Result {
+public class Result implements Parcelable {
     String poster_path;
-    boolean adult;
+    String adult;
     String overview;
     String release_date;
-    GenreIds [] genre_ids;
-    int id;
+    String genre_ids;
+    String id;
     String original_title;
     String original_language;
     String title;
     String backdrop_path;
     String popularity;
     String vote_count;
-    boolean video;
-    double vote_average;
+    String video;
+    String vote_average;
 
-    public Result(String poster_path, boolean adult, String overview, String release_date, GenreIds[] genre_ids, int id, String original_title, String original_language, String title, String backdrop_path, String popularity, String vote_count, boolean video, double vote_average) {
-        this.poster_path = poster_path;
-        this.adult = adult;
-        this.overview = overview;
-        this.release_date = release_date;
-        this.genre_ids = genre_ids;
-        this.id = id;
-        this.original_title = original_title;
-        this.original_language = original_language;
-        this.title = title;
-        this.backdrop_path = backdrop_path;
-        this.popularity = popularity;
-        this.vote_count = vote_count;
-        this.video = video;
-        this.vote_average = vote_average;
+    public Result(){
+
     }
 
     public String getPoster_path() {
@@ -45,11 +35,11 @@ class Result {
         this.poster_path = poster_path;
     }
 
-    public boolean isAdult() {
+    public String isAdult() {
         return adult;
     }
 
-    public void setAdult(boolean adult) {
+    public void setAdult(String adult) {
         this.adult = adult;
     }
 
@@ -69,19 +59,19 @@ class Result {
         this.release_date = release_date;
     }
 
-    public GenreIds[] getGenre_ids() {
+    public String getGenre_ids() {
         return genre_ids;
     }
 
-    public void setGenre_ids(GenreIds[] genre_ids) {
+    public void setGenre_ids(String genre_ids) {
         this.genre_ids = genre_ids;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -133,19 +123,29 @@ class Result {
         this.vote_count = vote_count;
     }
 
-    public boolean isVideo() {
+    public String isVideo() {
         return video;
     }
 
-    public void setVideo(boolean video) {
+    public void setVideo(String video) {
         this.video = video;
     }
 
-    public double getVote_average() {
+    public String getVote_average() {
         return vote_average;
     }
 
-    public void setVote_average(double vote_average) {
+    public void setVote_average(String vote_average) {
         this.vote_average = vote_average;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
     }
 }

@@ -10,11 +10,7 @@ public class TMDBJsonResponse {
     String total_results;
     String total_pages;
 
-    public TMDBJsonResponse(int page, Result[] results, String total_results, String total_pages) {
-        this.page = page;
-        this.results = results;
-        this.total_results = total_results;
-        this.total_pages = total_pages;
+    public TMDBJsonResponse() {
     }
 
     public int getPage() {
