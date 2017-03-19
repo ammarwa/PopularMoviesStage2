@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by ammar on 0019 19 Mar 17.
  */
 
-public class Result implements Parcelable {
+public class Result  {
     String poster_path;
     String adult;
     String overview;
@@ -25,6 +25,15 @@ public class Result implements Parcelable {
 
     public Result(){
 
+    }
+
+    @Override
+    public String toString() {
+        return poster_path + ':' +
+                overview + ':' +
+                release_date + ':' +
+                title + ':' +
+                vote_average;
     }
 
     public String getPoster_path() {
@@ -137,15 +146,5 @@ public class Result implements Parcelable {
 
     public void setVote_average(String vote_average) {
         this.vote_average = vote_average;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
     }
 }

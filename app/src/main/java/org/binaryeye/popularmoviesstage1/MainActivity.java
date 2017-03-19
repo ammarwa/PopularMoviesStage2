@@ -24,7 +24,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MoviesAdapterOnClickHandler {
 
-    int popularOrRated = 1;
+    int popularOrRated = 0;
     int pageNumber = 1;
 
     ProgressBar mLoadingIndicator;
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         nextPage = (Button) findViewById(R.id.next_btn);
         previousPage = (Button) findViewById(R.id.previous_btn);
         switchSortBy = (Switch) findViewById(R.id.switch_sort_by);
+        switchSortBy.setChecked(true);
         previousPage.setEnabled(false);
         loadMoviesData();
     }
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         Context context = this;
         Class destinationClass = MovieActivity.class;
         Intent intentToStartDetailActivity = new Intent(context, destinationClass);
-        intentToStartDetailActivity.putExtra("Details",  currentMovie);
+        intentToStartDetailActivity.putExtra("Details",  currentMovie.toString());
         startActivity(intentToStartDetailActivity);
     }
 

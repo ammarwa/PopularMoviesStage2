@@ -35,10 +35,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="cursive"
+            android:onClick="switch_sort_by_onclick"
             android:textOff="Rating"
             android:textOn="Popularity"
             android:textSize="38sp"
-            android:onClick="switch_sort_by_onclick"/>
+            tools:checked="true" />
 
         <TextView
             android:layout_width="wrap_content"
