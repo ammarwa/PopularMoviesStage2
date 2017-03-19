@@ -24,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 /**
  * These utilities will be used to communicate with the weather servers.
@@ -32,49 +33,39 @@ public final class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
-    private static final String DYNAMIC_WEATHER_URL =
-            "https://andfun-weather.udacity.com/weather";
+    private static final String POPULAR_MOVIES_URL =
+            "https://api.themoviedb.org/3/movie/popular";
 
-    private static final String STATIC_WEATHER_URL =
-            "https://andfun-weather.udacity.com/staticweather";
+    private static final String TOP_RATED_MOVIES_URL =
+            "https://api.themoviedb.org/3/movie/top_rated";
 
-    private static final String FORECAST_BASE_URL = STATIC_WEATHER_URL;
 
-    /*
-     * NOTE: These values only effect responses from OpenWeatherMap, NOT from the fake weather
-     * server. They are simply here to allow us to teach you how to build a URL if you were to use
-     * a real API.If you want to connect your app to OpenWeatherMap's API, feel free to! However,
-     * we are not going to show you how to do so in this course.
-     */
 
-    /* The format we want our API to return */
-    private static final String format = "json";
-    /* The units we want our API to return */
-    private static final String units = "metric";
-    /* The number of days we want our API to return */
-    private static final int numDays = 14;
+    /* The api key requested by TMDB */
+    private static final String api_key = "6d77beda76db333f36b02f4a52c3d207";
 
-    final static String QUERY_PARAM = "q";
-    final static String LAT_PARAM = "lat";
-    final static String LON_PARAM = "lon";
-    final static String FORMAT_PARAM = "mode";
-    final static String UNITS_PARAM = "units";
-    final static String DAYS_PARAM = "cnt";
+    final static String API_KEY = "api_key";
+
+    final static String PAGE = "page";
 
     /**
-     * Builds the URL used to talk to the weather server using a location. This location is based
-     * on the query capabilities of the weather provider that we are using.
+     * Builds the URL used to talk to the TMDB server using a Api key.
      *
-     * @param locationQuery The location that will be queried for.
-     * @return The URL to use to query the weather server.
+     * @return The URL to use to query the TMDB server.
      */
-    public static URL buildUrl(String locationQuery) {
-        Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                .appendQueryParameter(QUERY_PARAM, locationQuery)
-                .appendQueryParameter(FORMAT_PARAM, format)
-                .appendQueryParameter(UNITS_PARAM, units)
-                .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                .build();
+    public static URL buildUrl(int choice, int pageNumber) {
+        Uri builtUri = null;
+        if(choice == 0) {
+            builtUri = Uri.parse(POPULAR_MOVIES_URL).buildUpon()
+                    .appendQueryParameter(API_KEY, api_key)
+                    .appendQueryParameter(PAGE, Integer.toString(pageNumber))
+                    .build();
+        } else {
+            builtUri = Uri.parse(TOP_RATED_MOVIES_URL).buildUpon()
+                    .appendQueryParameter(API_KEY, api_key)
+                    .appendQueryParameter(PAGE, Integer.toString(pageNumber))
+                    .build();
+        }
 
         URL url = null;
         try {
@@ -86,19 +77,6 @@ public final class NetworkUtils {
         Log.v(TAG, "Built URI " + url);
 
         return url;
-    }
-
-    /**
-     * Builds the URL used to talk to the weather server using latitude and longitude of a
-     * location.
-     *
-     * @param lat The latitude of the location
-     * @param lon The longitude of the location
-     * @return The Url to use to query the weather server.
-     */
-    public static URL buildUrl(Double lat, Double lon) {
-        /** This will be implemented in a future lesson **/
-        return null;
     }
 
     /**
