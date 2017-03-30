@@ -1,18 +1,18 @@
 <LinearLayout
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300px"
-    android:layout_height="420px"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:layout_gravity="center">
 
 
         <ImageView
             android:id="@+id/movie_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
-            android:padding="10dp"
+            android:layout_marginLeft="19dp"
             android:scaleType="fitXY"/>
 
 

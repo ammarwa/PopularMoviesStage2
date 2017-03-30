@@ -104,8 +104,7 @@
     <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/recyclerview_movies"
-            android:layout_gravity="center">
+            android:id="@+id/recyclerview_movies">
 
         </android.support.v7.widget.RecyclerView>
     </FrameLayout>

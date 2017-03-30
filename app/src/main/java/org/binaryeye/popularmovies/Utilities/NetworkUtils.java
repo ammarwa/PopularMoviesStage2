@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.binaryeye.popularmoviesstage1.Utilities;
+package org.binaryeye.popularmovies.Utilities;
 
 import android.net.Uri;
 import android.util.Log;
+import android.util.LongSparseArray;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
-import java.util.StringTokenizer;
 
 /**
  * These utilities will be used to communicate with the weather servers.
@@ -38,6 +38,12 @@ public final class NetworkUtils {
 
     private static final String TOP_RATED_MOVIES_URL =
             "https://api.themoviedb.org/3/movie/top_rated";
+
+    private static final String MOVIE_VIDEOS =
+            "https://api.themoviedb.org/3/movie/";
+
+    private static final String MOVIE_VIDEOS_REST =
+            "/videos";
 
 
 
@@ -53,17 +59,21 @@ public final class NetworkUtils {
      *
      * @return The URL to use to query the TMDB server.
      */
-    public static URL buildUrl(int choice, int pageNumber) {
+    public static URL buildUrl(int choice, int pageNumber, Long movieID) {
         Uri builtUri = null;
         if(choice == 0) {
             builtUri = Uri.parse(POPULAR_MOVIES_URL).buildUpon()
                     .appendQueryParameter(API_KEY, api_key)
                     .appendQueryParameter(PAGE, Integer.toString(pageNumber))
                     .build();
-        } else {
+        } else if(choice == 1) {
             builtUri = Uri.parse(TOP_RATED_MOVIES_URL).buildUpon()
                     .appendQueryParameter(API_KEY, api_key)
                     .appendQueryParameter(PAGE, Integer.toString(pageNumber))
+                    .build();
+        } else {
+            builtUri = Uri.parse(MOVIE_VIDEOS + movieID + MOVIE_VIDEOS_REST).buildUpon()
+                    .appendQueryParameter(API_KEY, api_key)
                     .build();
         }
 

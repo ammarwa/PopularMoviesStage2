@@ -1,7 +1,4 @@
-package org.binaryeye.popularmoviesstage1.Models;
-
-import android.os.Parcel;
-import android.os.Parcelable;
+package org.binaryeye.popularmovies.Models;
 
 /**
  * Created by ammar on 0019 19 Mar 17.
@@ -33,7 +30,8 @@ public class Result  {
                 overview + ':' +
                 release_date + ':' +
                 title + ':' +
-                vote_average;
+                vote_average + ':' +
+                id;
     }
 
     public String getPoster_path() {

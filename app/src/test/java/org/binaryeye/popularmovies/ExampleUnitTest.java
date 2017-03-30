@@ -1,4 +1,4 @@
-package org.binaryeye.popularmoviesstage1;
+package org.binaryeye.popularmovies;
 
 import org.junit.Test;
 

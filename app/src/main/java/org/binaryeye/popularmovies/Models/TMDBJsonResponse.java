@@ -1,4 +1,4 @@
-package org.binaryeye.popularmoviesstage1.Models;
+package org.binaryeye.popularmovies.Models;
 
 /**
  * Created by ammar on 0019 19 Mar 17.

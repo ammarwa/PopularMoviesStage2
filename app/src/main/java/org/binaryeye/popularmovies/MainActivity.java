@@ -1,4 +1,4 @@
-package org.binaryeye.popularmoviesstage1;
+package org.binaryeye.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -14,9 +13,9 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.binaryeye.popularmoviesstage1.Models.Result;
-import org.binaryeye.popularmoviesstage1.Models.TMDBJsonResponse;
-import org.binaryeye.popularmoviesstage1.Utilities.NetworkUtils;
+import org.binaryeye.popularmovies.Models.Result;
+import org.binaryeye.popularmovies.Models.TMDBJsonResponse;
+import org.binaryeye.popularmovies.Utilities.NetworkUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
         @Override
         protected TMDBJsonResponse doInBackground(Void... params) {
-            URL moviesRequestUrl = NetworkUtils.buildUrl(popularOrRated, pageNumber);
+            URL moviesRequestUrl = NetworkUtils.buildUrl(popularOrRated, pageNumber, 0L);
 
             try {
                 String jsonMoviesResponse = NetworkUtils

@@ -1,4 +1,4 @@
-package org.binaryeye.popularmoviesstage1;
+package org.binaryeye.popularmovies;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,12 +8,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.binaryeye.popularmoviesstage1.Models.Result;
-import org.binaryeye.popularmoviesstage1.Models.TMDBJsonResponse;
+import org.binaryeye.popularmovies.Models.MovieVideos;
+import org.binaryeye.popularmovies.Models.MoviesVideosList;
+import org.binaryeye.popularmovies.Models.Result;
+import org.binaryeye.popularmovies.Models.TMDBJsonResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,23 +29,23 @@ import java.util.concurrent.ExecutionException;
  * Created by ammar on 0019 19 Mar 17.
  */
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder> {
+public class MovieVideosAdapter extends RecyclerView.Adapter<MovieVideosAdapter.MoviesAdapterViewHolder> {
 
-    private TMDBJsonResponse moviesData;
+    private MoviesVideosList moviesData;
 
     private final MoviesAdapterOnClickHandler mClickHandler;
 
-    public MoviesAdapter(MoviesAdapterOnClickHandler clickHandler){
+    public MovieVideosAdapter(MoviesAdapterOnClickHandler clickHandler){
         mClickHandler = clickHandler;
     }
 
     public interface MoviesAdapterOnClickHandler{
-        void onClick(Result currentMovie);
+        void onClick(MovieVideos currentMovie);
     }
     @Override
     public MoviesAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        int layoutIdForListItem = R.layout.movies_list_item;
+        int layoutIdForListItem = R.layout.movie_videos_list_item;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
 
@@ -95,15 +96,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     @Override
     public void onBindViewHolder(MoviesAdapterViewHolder holder, int position) {
-        Result currentMovie = moviesData.getResults()[position];
+        MovieVideos currentMovie = moviesData.getResults()[position];
         LoadImage loadImage = new LoadImage();
-        try {
-            holder.movieImageButton.setImageBitmap(loadImage.execute("http://image.tmdb.org/t/p/w185" + currentMovie.getPoster_path()).get());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        holder.movieVideoTitle.setText(currentMovie.getName());
+        holder.movieVideoTitle.setTag(currentMovie.getKey());
     }
 
     @Override
@@ -113,23 +109,23 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     }
 
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final ImageView movieImageButton;
+        public final TextView movieVideoTitle;
 
         public MoviesAdapterViewHolder(View view){
             super(view);
-            movieImageButton = (ImageView) view.findViewById(R.id.movie_image_button);
+            movieVideoTitle = (TextView) view.findViewById(R.id.trailer_title);
             view.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            Result currentMovie = moviesData.getResults()[adapterPosition];
+            MovieVideos currentMovie = moviesData.getResults()[adapterPosition];
             mClickHandler.onClick(currentMovie);
         }
     }
 
-    public void setMoviesData(TMDBJsonResponse movieData) {
+    public void setMoviesData(MoviesVideosList movieData) {
         moviesData = movieData;
         notifyDataSetChanged();
     }
