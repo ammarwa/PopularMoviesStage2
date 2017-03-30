@@ -3,14 +3,16 @@ package org.binaryeye.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.binaryeye.popularmovies.Models.Result;
@@ -27,14 +29,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     int pageNumber = 1;
 
     ProgressBar mLoadingIndicator;
+    TextView pageNumberTextView;
+    ImageButton nextPage;
+    ImageButton previousPage;
+    int totalNumberOfPages;
     private RecyclerView mRecyclerView;
     private MoviesAdapter moviesAdapter;
     private TextView mErrorMessageDisplay;
-    TextView pageNumberTextView;
-    Button nextPage;
-    Button previousPage;
-    int totalNumberOfPages;
-    Switch switchSortBy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +51,46 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mRecyclerView.setAdapter(moviesAdapter);
         pageNumberTextView = (TextView) findViewById(R.id.page_number);
         pageNumberTextView.setText("1");
-        nextPage = (Button) findViewById(R.id.next_btn);
-        previousPage = (Button) findViewById(R.id.previous_btn);
-        switchSortBy = (Switch) findViewById(R.id.switch_sort_by);
-        switchSortBy.setChecked(true);
+        nextPage = (ImageButton) findViewById(R.id.next_btn);
+        previousPage = (ImageButton) findViewById(R.id.previous_btn);
         previousPage.setEnabled(false);
         loadMoviesData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id == R.id.sort_pop) {
+            popularOrRated = 0;
+            pageNumber = 1;
+            previousPage.setEnabled(false);
+            pageNumberTextView.setText("1");
+            nextPage.setEnabled(true);
+            loadMoviesData();
+            return true;
+        }
+        if (id == R.id.sort_rated) {
+            popularOrRated = 1;
+            pageNumber = 1;
+            previousPage.setEnabled(false);
+            pageNumberTextView.setText("1");
+            nextPage.setEnabled(true);
+            loadMoviesData();
+            return true;
+        }
+        if (id == R.id.sort_fav) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadMoviesData() {
@@ -106,25 +141,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         loadMoviesData();
     }
 
-    public void switch_sort_by_onclick(View v){
-        if(switchSortBy.isChecked()){
-            popularOrRated = 0;
-        } else {
-            popularOrRated = 1;
-        }
-        pageNumber = 1;
-        previousPage.setEnabled(false);
-        pageNumberTextView.setText("1");
-        nextPage.setEnabled(true);
-        loadMoviesData();
-    }
-
     public class FetchMoviesTask extends AsyncTask<Void, Void, TMDBJsonResponse>{
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             mLoadingIndicator.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -175,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         @Override
         protected void onPostExecute(TMDBJsonResponse moviesData) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
             if (moviesData != null) {
                 showMoviesDataView();
                 moviesAdapter.setMoviesData(moviesData);
