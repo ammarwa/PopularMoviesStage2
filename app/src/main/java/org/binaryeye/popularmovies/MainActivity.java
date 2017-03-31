@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,26 +45,44 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     int totalNumberOfPages;
     boolean inFav = false;
     private RecyclerView mRecyclerView;
-    private MoviesAdapter moviesAdapter;
+    private MoviesAdapter moviesAdapter = new MoviesAdapter(this);;
     private TextView mErrorMessageDisplay;
+
+    private static final String SORT_BY_POPULAR = "popular";
+    private static final String SORT_BY_TOPRATED = "toprated";
+    private static final String SORT_BY_FAV = "fav";
+
+    private String mSortOrder = SORT_BY_POPULAR;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(savedInstanceState != null){
+            pageNumber = savedInstanceState.getInt("page_number",pageNumber);
+            mSortOrder = savedInstanceState.getString("sort_order",mSortOrder);
+        }
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movies);
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         GridLayoutManager layoutManager = new GridLayoutManager(this,5);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.hasFixedSize();
-        moviesAdapter = new MoviesAdapter(this);
         mRecyclerView.setAdapter(moviesAdapter);
         pageNumberTextView = (TextView) findViewById(R.id.page_number);
-        pageNumberTextView.setText("1");
+        pageNumberTextView.setText(pageNumber+"");
         nextPage = (ImageButton) findViewById(R.id.next_btn);
         previousPage = (ImageButton) findViewById(R.id.previous_btn);
-        previousPage.setEnabled(false);
+        if(pageNumber==1) {
+            previousPage.setEnabled(false);
+        }
+        if(mSortOrder.equals(SORT_BY_FAV)){
+            inFav = true;
+        } else if (mSortOrder.equals(SORT_BY_POPULAR)){
+            popularOrRated = 0;
+        } else {
+            popularOrRated = 1;
+        }
         loadMoviesData();
         new FetchFavMoviesTask().execute();
     }
@@ -83,8 +102,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         if (id == R.id.sort_pop) {
             popularOrRated = 0;
             pageNumber = 1;
+            mSortOrder = SORT_BY_POPULAR;
             previousPage.setEnabled(false);
-            pageNumberTextView.setText("1");
+            pageNumberTextView.setText(Integer.toString(pageNumber));
             nextPage.setEnabled(true);
             loadMoviesData();
             inFav = false;
@@ -94,7 +114,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             popularOrRated = 1;
             pageNumber = 1;
             previousPage.setEnabled(false);
-            pageNumberTextView.setText("1");
+            mSortOrder = SORT_BY_TOPRATED;
+            pageNumberTextView.setText(Integer.toString(pageNumber));
             nextPage.setEnabled(true);
             loadMoviesData();
             inFav = false;
@@ -107,8 +128,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 for(int i = 0; i < favMovies.size(); i++){
                     results[i] = favMovies.get(i);
                 }
+                mSortOrder = SORT_BY_FAV;
                 tmdbJsonResponse.setResults(results);
                 showMoviesDataView();
+                pageNumber = 1;
+                pageNumberTextView.setText(Integer.toString(pageNumber));
                 moviesAdapter.setMoviesData(tmdbJsonResponse);
                 inFav = true;
             } else {
@@ -147,6 +171,20 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         intentToStartDetailActivity.putExtra("fav", inFav + "");
         intentToStartDetailActivity.putExtra("movie_id", currentMovie.getId());
         startActivity(intentToStartDetailActivity);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("sort_order", mSortOrder);
+        outState.putInt("page_number", pageNumber);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mSortOrder = savedInstanceState.getString("sort_order", SORT_BY_POPULAR);
+        pageNumber = savedInstanceState.getInt("page_number", pageNumber);
     }
 
     public void previous_page_onClick(View v) {
