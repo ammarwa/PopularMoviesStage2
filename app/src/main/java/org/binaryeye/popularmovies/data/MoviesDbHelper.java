@@ -35,7 +35,8 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                         MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE + " VARCHAR (50) NOT NULL, " +
                         MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE + " VARCHAR (50) NOT NULL, " +
                         MoviesContract.MoviesEntry.COLUMN_VIDEO + " VARCHAR (50), " +
-                        " UNIQUE (" + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
+                        MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + " VARCHAR (50)" +
+                        ");";
 
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
     }

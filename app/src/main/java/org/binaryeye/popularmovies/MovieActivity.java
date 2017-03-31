@@ -65,10 +65,20 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
         mRecyclerView = (RecyclerView) findViewById(R.id.movie_trailers);
         mRecyclerViewReviews = (RecyclerView) findViewById(R.id.movie_reviews);
 
+
+
         Intent intent = getIntent();
         if (intent != null) {
             currentMovie = intent.getStringExtra("Details");
             inFav = intent.getStringExtra("fav");
+            movieID = intent.getStringExtra("movie_id");
+        }
+        if(!inFav.equals("true")) {
+            for (int i = 0; i < MainActivity.favMovies.size(); i++) {
+                if (currentMovie.split(":")[5].equals(MainActivity.favMovies.get(i).getId())) {
+                    inFav = "true";
+                }
+            }
         }
         if (inFav.equals("true")) {
             favImageBtn.setTag(1);
@@ -90,7 +100,6 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
             movieRating.setRating((Float.parseFloat(currentMovie.split(":")[4]) * 5.0f) / 10.0f);
             movieReleaseDate.setText(currentMovie.split(":")[2]);
             new FetchImage().execute(currentMovie.split(":")[0]);
-            movieID = currentMovie.split(":")[5];
         }catch (Exception e){}
 
         LinearLayoutManager layoutManagerR = new LinearLayoutManager(this);
@@ -143,7 +152,7 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
     public void favBtnOnClick(View view) {
         if (Integer.parseInt(favImageBtn.getTag().toString()) == 0) {
             ContentValues contentValues = new ContentValues();
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, currentMovie.split(":")[5]);
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, movieID);
             contentValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, currentMovie.split(":")[1]);
             contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, currentMovie.split(":")[4]);
             contentValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH, currentMovie.split(":")[0]);
@@ -157,7 +166,7 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
             }
         } else {
             Uri uri = MoviesContract.MoviesEntry.CONTENT_URI;
-            uri = uri.buildUpon().appendPath(currentMovie.split(":")[5]).build();
+            uri = uri.buildUpon().appendPath(movieID).build();
             getContentResolver().delete(uri, null, null);
             favImageBtn.setImageResource(R.drawable.ic_nfavorite_border_48px);
             favImageBtn.setTag(0);

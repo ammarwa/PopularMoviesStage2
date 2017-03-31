@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
     Cursor mData;
 
-    ArrayList<Result> favMovies = new ArrayList<Result>();
+    public static ArrayList<Result> favMovies = new ArrayList<Result>();
 
     ProgressBar mLoadingIndicator;
     TextView pageNumberTextView;
@@ -103,7 +103,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         if (id == R.id.sort_fav) {
             if (favMovies.size() > 0) {
                 TMDBJsonResponse tmdbJsonResponse = new TMDBJsonResponse();
-                Result[] results = (Result[]) favMovies.toArray();
+                Result[] results = new Result[favMovies.size()];
+                for(int i = 0; i < favMovies.size(); i++){
+                    results[i] = favMovies.get(i);
+                }
                 tmdbJsonResponse.setResults(results);
                 showMoviesDataView();
                 moviesAdapter.setMoviesData(tmdbJsonResponse);
@@ -142,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         Intent intentToStartDetailActivity = new Intent(context, destinationClass);
         intentToStartDetailActivity.putExtra("Details",  currentMovie.toString());
         intentToStartDetailActivity.putExtra("fav", inFav + "");
+        intentToStartDetailActivity.putExtra("movie_id", currentMovie.getId());
         startActivity(intentToStartDetailActivity);
     }
 
@@ -192,6 +196,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 mData.close();
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new FetchFavMoviesTask().execute();
     }
 
     public class FetchFavMoviesTask extends AsyncTask<Void, Void, Cursor> {
