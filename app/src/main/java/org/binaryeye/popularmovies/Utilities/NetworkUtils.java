@@ -17,7 +17,6 @@ package org.binaryeye.popularmovies.Utilities;
 
 import android.net.Uri;
 import android.util.Log;
-import android.util.LongSparseArray;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,28 +30,21 @@ import java.util.Scanner;
  */
 public final class NetworkUtils {
 
+    final static String API_KEY = "api_key";
+    final static String PAGE = "page";
     private static final String TAG = NetworkUtils.class.getSimpleName();
-
     private static final String POPULAR_MOVIES_URL =
             "https://api.themoviedb.org/3/movie/popular";
-
     private static final String TOP_RATED_MOVIES_URL =
             "https://api.themoviedb.org/3/movie/top_rated";
-
     private static final String MOVIE_VIDEOS =
             "https://api.themoviedb.org/3/movie/";
-
     private static final String MOVIE_VIDEOS_REST =
             "/videos";
-
-
-
+    private static final String MOVIE_REVIEWS_REST =
+            "/reviews";
     /* The api key requested by TMDB */
     private static final String api_key = "6d77beda76db333f36b02f4a52c3d207";
-
-    final static String API_KEY = "api_key";
-
-    final static String PAGE = "page";
 
     /**
      * Builds the URL used to talk to the TMDB server using a Api key.
@@ -71,8 +63,12 @@ public final class NetworkUtils {
                     .appendQueryParameter(API_KEY, api_key)
                     .appendQueryParameter(PAGE, Integer.toString(pageNumber))
                     .build();
-        } else {
+        } else if (choice == 2) {
             builtUri = Uri.parse(MOVIE_VIDEOS + movieID + MOVIE_VIDEOS_REST).buildUpon()
+                    .appendQueryParameter(API_KEY, api_key)
+                    .build();
+        } else {
+            builtUri = Uri.parse(MOVIE_VIDEOS + movieID + MOVIE_REVIEWS_REST).buildUpon()
                     .appendQueryParameter(API_KEY, api_key)
                     .build();
         }

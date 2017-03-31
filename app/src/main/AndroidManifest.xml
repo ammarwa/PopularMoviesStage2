@@ -21,4 +21,8 @@
         <activity android:name="org.binaryeye.popularmovies.MovieActivity"></activity>
     </application>
 
+    <provider
+        android:name="org.binaryeye.popularmovies.data.MoviesProvider"
+        android:authorities="org.binaryeye.popularmovies"
+        android:exported="true" />
 </manifest>

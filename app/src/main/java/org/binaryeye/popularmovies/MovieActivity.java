@@ -1,5 +1,6 @@
 package org.binaryeye.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,10 +16,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.binaryeye.popularmovies.Models.MovieReviews;
+import org.binaryeye.popularmovies.Models.MovieReviewsList;
 import org.binaryeye.popularmovies.Models.MovieVideos;
 import org.binaryeye.popularmovies.Models.MoviesVideosList;
 import org.binaryeye.popularmovies.Utilities.NetworkUtils;
+import org.binaryeye.popularmovies.data.MoviesContract;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -41,16 +46,16 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
     ImageButton favImageBtn;
     String movieID;
     MovieVideosAdapter movieVideosAdapter;
+    MovieReviewsAdapter movieReviewsAdapter;
     RecyclerView mRecyclerView;
+    RecyclerView mRecyclerViewReviews;
+    String inFav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
-        Intent intent = getIntent();
-        if(intent != null){
-            currentMovie = intent.getStringExtra("Details");
-        }
+
         movieTitle = (TextView) findViewById(R.id.movie_title);
         movieImage = (ImageView) findViewById(R.id.movie_image);
         movieOverview = (TextView) findViewById(R.id.movie_overview);
@@ -58,15 +63,26 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
         movieReleaseDate = (TextView) findViewById(R.id.movie_release_date);
         favImageBtn = (ImageButton) findViewById(R.id.fav_btn);
         mRecyclerView = (RecyclerView) findViewById(R.id.movie_trailers);
+        mRecyclerViewReviews = (RecyclerView) findViewById(R.id.movie_reviews);
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            currentMovie = intent.getStringExtra("Details");
+            inFav = intent.getStringExtra("fav");
+        }
+        if (inFav.equals("true")) {
+            favImageBtn.setTag(1);
+            favImageBtn.setImageResource(R.drawable.ic_favorite_48px);
+        } else {
+            favImageBtn.setTag(0);
+        }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.hasFixedSize();
         movieVideosAdapter = new MovieVideosAdapter(this);
+        movieReviewsAdapter = new MovieReviewsAdapter();
         mRecyclerView.setAdapter(movieVideosAdapter);
-
-        favImageBtn.setTag(0);
-
         try {
             movieTitle.setText(currentMovie.split(":")[3]);
             movieOverview.setText(currentMovie.split(":")[1]);
@@ -77,7 +93,13 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
             movieID = currentMovie.split(":")[5];
         }catch (Exception e){}
 
+        LinearLayoutManager layoutManagerR = new LinearLayoutManager(this);
+        mRecyclerViewReviews.setLayoutManager(layoutManagerR);
+        mRecyclerViewReviews.hasFixedSize();
+        mRecyclerViewReviews.setAdapter(movieReviewsAdapter);
+
         loadMovieVideos();
+        loadMovieReviews();
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -95,6 +117,10 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
 
     private void loadMovieVideos(){
         new FetchMovieVideosTask().execute();
+    }
+
+    private void loadMovieReviews() {
+        new FetchMovieReviewsTask().execute();
     }
 
     @Override
@@ -116,9 +142,23 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
 
     public void favBtnOnClick(View view) {
         if (Integer.parseInt(favImageBtn.getTag().toString()) == 0) {
-            favImageBtn.setImageResource(R.drawable.ic_favorite_48px);
-            favImageBtn.setTag(1);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, currentMovie.split(":")[5]);
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, currentMovie.split(":")[1]);
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, currentMovie.split(":")[4]);
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH, currentMovie.split(":")[0]);
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, currentMovie.split(":")[2]);
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_TITLE, currentMovie.split(":")[3]);
+            Uri uri = getContentResolver().insert(MoviesContract.MoviesEntry.CONTENT_URI, contentValues);
+            if (uri != null) {
+                Toast.makeText(getBaseContext(), "Added to Favourites!", Toast.LENGTH_LONG).show();
+                favImageBtn.setImageResource(R.drawable.ic_favorite_48px);
+                favImageBtn.setTag(1);
+            }
         } else {
+            Uri uri = MoviesContract.MoviesEntry.CONTENT_URI;
+            uri = uri.buildUpon().appendPath(currentMovie.split(":")[5]).build();
+            getContentResolver().delete(uri, null, null);
             favImageBtn.setImageResource(R.drawable.ic_nfavorite_border_48px);
             favImageBtn.setTag(0);
         }
@@ -143,7 +183,7 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
                 MoviesVideosList response = new MoviesVideosList();
                 JSONArray movieJSONResults = movieJson.getJSONArray("results");
                 MovieVideos[] results = new MovieVideos[movieJSONResults.length()];
-                for(int i = 0; i < movieJSONResults.length(); i++ ){
+                for (int i = 0; i < movieJSONResults.length(); i++) {
                     results[i] = new MovieVideos();
                     if (movieJSONResults.getJSONObject(i) != null) {
                         results[i].setId((movieJSONResults.getJSONObject(i).getString("id").toString() == null) ? "N/A" : movieJSONResults.getJSONObject(i).getString("id").toString());
@@ -178,6 +218,64 @@ public class MovieActivity extends AppCompatActivity implements MovieVideosAdapt
                 mVDefault[0].setName("There is no trailers!");
                 mDefault.setResults(mVDefault);
                 movieVideosAdapter.setMoviesData(mDefault);
+            }
+        }
+    }
+
+    public class FetchMovieReviewsTask extends AsyncTask<Void, Void, MovieReviewsList> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected MovieReviewsList doInBackground(Void... params) {
+            try {
+                URL moviesRequestUrl = NetworkUtils.buildUrl(3, 0, Long.parseLong(movieID));
+                String jsonMoviesResponse = NetworkUtils
+                        .getResponseFromHttpUrl(moviesRequestUrl);
+
+                JSONObject movieJson = new JSONObject(jsonMoviesResponse);
+
+                MovieReviewsList response = new MovieReviewsList();
+                JSONArray movieJSONResults = movieJson.getJSONArray("results");
+                MovieReviews[] results = new MovieReviews[movieJSONResults.length()];
+                for(int i = 0; i < movieJSONResults.length(); i++ ){
+                    results[i] = new MovieReviews();
+                    if (movieJSONResults.getJSONObject(i) != null) {
+                        results[i].setId((movieJSONResults.getJSONObject(i).getString("id").toString() == null) ? "N/A" : movieJSONResults.getJSONObject(i).getString("id").toString());
+                        results[i].setAuthor((movieJSONResults.getJSONObject(i).get("author").toString() == null) ? "N/A" : movieJSONResults.getJSONObject(i).get("author").toString());
+                        results[i].setContent((movieJSONResults.getJSONObject(i).get("content").toString() == null) ? "N/A" : movieJSONResults.getJSONObject(i).get("content").toString());
+                        results[i].setUrl((movieJSONResults.getJSONObject(i).get("url").toString() == null) ? "N/A" : movieJSONResults.getJSONObject(i).get("url").toString());
+                    }
+                }
+                response.setResults(results);
+                response.setId(movieJson.get("id").toString());
+                response.setPage(movieJson.get("page").toString());
+                response.setTotal_pages(movieJson.get("total_pages").toString());
+                response.setTotal_results(movieJson.get("total_results").toString());
+
+                return response;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(MovieReviewsList moviesData) {
+            if (moviesData != null) {
+                movieReviewsAdapter.setMoviesData(moviesData);
+            } else {
+                MovieReviewsList mDefault = new MovieReviewsList();
+                MovieReviews[] mVDefault = new MovieReviews[1];
+                mVDefault[0] = new MovieReviews();
+                mVDefault[0].setContent("There is no trailers!");
+                mVDefault[0].setAuthor("");
+                mDefault.setResults(mVDefault);
+                movieReviewsAdapter.setMoviesData(mDefault);
             }
         }
     }

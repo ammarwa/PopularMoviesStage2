@@ -1,7 +1,9 @@
 package org.binaryeye.popularmovies;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,25 +16,33 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.binaryeye.popularmovies.Models.Result;
 import org.binaryeye.popularmovies.Models.TMDBJsonResponse;
 import org.binaryeye.popularmovies.Utilities.NetworkUtils;
+import org.binaryeye.popularmovies.data.MoviesContract;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MoviesAdapterOnClickHandler {
 
     int popularOrRated = 0;
     int pageNumber = 1;
 
+    Cursor mData;
+
+    ArrayList<Result> favMovies = new ArrayList<Result>();
+
     ProgressBar mLoadingIndicator;
     TextView pageNumberTextView;
     ImageButton nextPage;
     ImageButton previousPage;
     int totalNumberOfPages;
+    boolean inFav = false;
     private RecyclerView mRecyclerView;
     private MoviesAdapter moviesAdapter;
     private TextView mErrorMessageDisplay;
@@ -55,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         previousPage = (ImageButton) findViewById(R.id.previous_btn);
         previousPage.setEnabled(false);
         loadMoviesData();
+        new FetchFavMoviesTask().execute();
     }
 
     @Override
@@ -76,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             pageNumberTextView.setText("1");
             nextPage.setEnabled(true);
             loadMoviesData();
+            inFav = false;
             return true;
         }
         if (id == R.id.sort_rated) {
@@ -85,9 +97,20 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             pageNumberTextView.setText("1");
             nextPage.setEnabled(true);
             loadMoviesData();
+            inFav = false;
             return true;
         }
         if (id == R.id.sort_fav) {
+            if (favMovies.size() > 0) {
+                TMDBJsonResponse tmdbJsonResponse = new TMDBJsonResponse();
+                Result[] results = (Result[]) favMovies.toArray();
+                tmdbJsonResponse.setResults(results);
+                showMoviesDataView();
+                moviesAdapter.setMoviesData(tmdbJsonResponse);
+                inFav = true;
+            } else {
+                Toast.makeText(this, "No Movies in your favourites!", Toast.LENGTH_LONG);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -118,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         Class destinationClass = MovieActivity.class;
         Intent intentToStartDetailActivity = new Intent(context, destinationClass);
         intentToStartDetailActivity.putExtra("Details",  currentMovie.toString());
+        intentToStartDetailActivity.putExtra("fav", inFav + "");
         startActivity(intentToStartDetailActivity);
     }
 
@@ -139,6 +163,53 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         previousPage.setEnabled(true);
         pageNumberTextView.setText(Integer.toString(pageNumber));
         loadMoviesData();
+    }
+
+    public void loadFavMovies() {
+        if (mData != null) {
+            favMovies = new ArrayList<Result>();
+            int mtitle = mData.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_TITLE);
+            int mPoster = mData.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH);
+            int mOverview = mData.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_OVERVIEW);
+            int mRDate = mData.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE);
+            int mMID = mData.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID);
+            int mVAvg = mData.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE);
+            try {
+                while (mData.moveToNext()) {
+                    Result result = new Result();
+
+                    result.setTitle(mData.getString(mtitle));
+                    result.setPoster_path(mData.getString(mPoster));
+                    result.setOverview(mData.getString(mOverview));
+                    result.setRelease_date(mData.getString(mRDate));
+                    result.setId(mData.getString(mMID));
+                    result.setVote_average(mData.getString(mVAvg));
+
+
+                    favMovies.add(result);
+                }
+            } finally {
+                mData.close();
+            }
+        }
+    }
+
+    public class FetchFavMoviesTask extends AsyncTask<Void, Void, Cursor> {
+
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            ContentResolver resolver = getContentResolver();
+            Cursor cursor = resolver.query(MoviesContract.MoviesEntry.CONTENT_URI,
+                    null, null, null, null);
+            return cursor;
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            super.onPostExecute(cursor);
+            mData = cursor;
+            loadFavMovies();
+        }
     }
 
     public class FetchMoviesTask extends AsyncTask<Void, Void, TMDBJsonResponse>{
